@@ -1,0 +1,6 @@
+{
+  "name": "MetaCMS Builder",
+  "description": "Android First visual platform for generating CMS, CRM, Wiki, Blog, Shop, and AI digital systems.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
