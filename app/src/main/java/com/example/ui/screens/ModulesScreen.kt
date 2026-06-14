@@ -48,10 +48,20 @@ fun ModulesScreen(viewModel: CmsViewModel) {
 
     if (currentProj == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Default.Source, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(16.dp)) {
+                Icon(
+                    imageVector = Icons.Default.Source, 
+                    contentDescription = null, 
+                    modifier = Modifier.size(64.dp), 
+                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Пожалуйста, сначала создайте или выберите проект.", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    text = viewModel.t("specs_create_project_alert"), 
+                    fontWeight = FontWeight.Bold, 
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
             }
         }
         return
@@ -71,19 +81,19 @@ fun ModulesScreen(viewModel: CmsViewModel) {
         item {
             Column {
                 Text(
-                    text = "Конфигуратор Модулей",
+                    text = viewModel.t("modules_header"),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Активируйте или отключите модули для ${currentProj!!.name}",
+                    text = viewModel.t("modules_desc"),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
 
-        // Horizontal picker or slider for toggling module active status
+        // Horizontal picker active status
         item {
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
@@ -91,12 +101,18 @@ fun ModulesScreen(viewModel: CmsViewModel) {
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Text(
-                        text = "Доступные Модули",
+                        text = viewModel.t("active_modules_card_title"),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = viewModel.t("active_modules_card_desc"),
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -134,13 +150,13 @@ fun ModulesScreen(viewModel: CmsViewModel) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
-                            Text("Спецификация Схемы (БД)", fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                            Text("Добавьте динамические колонки и параметры", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(viewModel.t("schema_editor_title"), fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                            Text(viewModel.t("schema_editor_desc"), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
 
                         IconButton(onClick = { isAddingField = true }) {
-                            Icon(Icons.Default.AddCircle, contentDescription = "Добавить поле", tint = MaterialTheme.colorScheme.primary)
+                            Icon(Icons.Default.AddCircle, contentDescription = "Add Column", tint = MaterialTheme.colorScheme.primary)
                         }
                     }
 
@@ -148,7 +164,7 @@ fun ModulesScreen(viewModel: CmsViewModel) {
 
                     if (schemaFields.isEmpty()) {
                         Text(
-                            text = "Колонки не заданы. Добавьте поля БД или используйте AI Assistant.",
+                            text = viewModel.t("no_schema_fields"),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                             modifier = Modifier.padding(vertical = 4.dp)
@@ -165,7 +181,7 @@ fun ModulesScreen(viewModel: CmsViewModel) {
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                                         Badge(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)) {
                                             Text(
                                                 text = field.type,
@@ -190,7 +206,7 @@ fun ModulesScreen(viewModel: CmsViewModel) {
                                     ) {
                                         Icon(
                                             Icons.Default.RemoveCircle,
-                                            contentDescription = "Удалить",
+                                            contentDescription = "Delete",
                                             tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f),
                                             modifier = Modifier.size(16.dp)
                                         )
@@ -274,13 +290,13 @@ fun ModulesScreen(viewModel: CmsViewModel) {
                         IconButton(
                             onClick = {
                                 clipboard.setText(AnnotatedString(generatedCode))
-                                Toast.makeText(context, "$selectedModuleCodeName code copied!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "$selectedModuleCodeName source code copied!", Toast.LENGTH_SHORT).show()
                             },
                             modifier = Modifier.size(28.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.ContentCopy,
-                                contentDescription = "Скопировать",
+                                contentDescription = "Copy",
                                 tint = Color.LightGray,
                                 modifier = Modifier.size(16.dp)
                             )
@@ -293,7 +309,7 @@ fun ModulesScreen(viewModel: CmsViewModel) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(max = 350.dp)
+                            .heightIn(max = 280.dp)
                             .horizontalScroll(horizontalScrollState)
                     ) {
                         Text(
@@ -340,14 +356,14 @@ fun ModulesScreen(viewModel: CmsViewModel) {
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "Симулятор Живой Базы",
+                                    text = viewModel.t("sandbox_title"),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 15.sp,
                                     color = MaterialTheme.colorScheme.onTertiaryContainer
                                 )
                             }
                             Text(
-                                text = "Интерактивная песочница для тестирования схемы",
+                                text = viewModel.t("sandbox_desc"),
                                 fontSize = 11.sp,
                                 color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f)
                             )
@@ -392,7 +408,7 @@ fun ModulesScreen(viewModel: CmsViewModel) {
                                 .padding(12.dp)
                         ) {
                             Text(
-                                text = "Модуль '$simModule' отключен. Вы можете активировать его выше в конфигураторе.",
+                                text = viewModel.t("sandbox_module_disabled") + " ($simModule)",
                                 color = MaterialTheme.colorScheme.onErrorContainer,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium
@@ -408,14 +424,14 @@ fun ModulesScreen(viewModel: CmsViewModel) {
                                     .padding(12.dp)
                             ) {
                                 Text(
-                                    text = "Колонки не заданы. Добавьте поля в 'Спецификации Схемы БД' выше или используйте ИИ-архитектора.",
+                                    text = viewModel.t("sandbox_no_fields"),
                                     fontSize = 12.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         } else {
                             Text(
-                                text = "Добавить запись в таблицу `$simModule`:",
+                                text = "${viewModel.t("sandbox_add_record_title")} `$simModule`:",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onTertiaryContainer
@@ -446,7 +462,7 @@ fun ModulesScreen(viewModel: CmsViewModel) {
                                     }
                                     viewModel.addMockRecord(simModule, newRecord)
                                     pendingInputValues.clear()
-                                    Toast.makeText(context, "Запись сохранена в виртуальной БД $simModule!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Stored live record in $simModule!", Toast.LENGTH_SHORT).show()
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
                                 modifier = Modifier.fillMaxWidth(),
@@ -454,14 +470,14 @@ fun ModulesScreen(viewModel: CmsViewModel) {
                             ) {
                                 Icon(Icons.Default.Storage, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Создать Тестовую Запись", fontSize = 13.sp)
+                                Text(viewModel.t("sandbox_btn"), fontSize = 13.sp)
                             }
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Text(
-                            text = "Виртуальная таблица `$simModule` (${currentRecords.size}):",
+                            text = "${viewModel.t("sandbox_db_table")} `$simModule` (${currentRecords.size}):",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onTertiaryContainer
@@ -470,7 +486,7 @@ fun ModulesScreen(viewModel: CmsViewModel) {
 
                         if (currentRecords.isEmpty()) {
                             Text(
-                                text = "Таблица пуста. Заполните поля выше, чтобы сгенерировать запись.",
+                                text = viewModel.t("sandbox_db_empty"),
                                 fontSize = 11.sp,
                                 color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.6f),
                                 modifier = Modifier.padding(vertical = 8.dp)
@@ -501,7 +517,7 @@ fun ModulesScreen(viewModel: CmsViewModel) {
                                                 ) {
                                                     Icon(
                                                         Icons.Default.Delete,
-                                                        contentDescription = "Удалить",
+                                                        contentDescription = "Delete",
                                                         tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f),
                                                         modifier = Modifier.size(14.dp)
                                                     )
@@ -555,67 +571,76 @@ fun ModulesScreen(viewModel: CmsViewModel) {
     if (isAddingField) {
         AlertDialog(
             onDismissRequest = { isAddingField = false },
-            title = { Text("Добавить колонку БД") },
+            title = { Text(viewModel.t("dialog_add_field_h")) },
             confirmButton = {
                 Button(
                     onClick = {
                         if (fieldName.isNotBlank()) {
                             viewModel.addSchemaField(
                                 SchemaField(
-                                    name = fieldName,
+                                    name = fieldName.trim(),
                                     type = selectedFieldType,
-                                    description = fieldDesc
+                                    description = fieldDesc.trim()
                                 )
                             )
-                            isAddingField = false
                             fieldName = ""
                             fieldDesc = ""
+                            isAddingField = false
+                        } else {
+                            Toast.makeText(context, viewModel.t("toast_field_name_req"), Toast.LENGTH_SHORT).show()
                         }
-                    },
-                    enabled = fieldName.isNotBlank()
+                    }
                 ) {
-                    Text("Сохранить")
+                    Text(viewModel.t("btn_add"))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { isAddingField = false }) {
-                    Text("Отмена")
+                TextButton(
+                    onClick = {
+                        fieldName = ""
+                        fieldDesc = ""
+                        isAddingField = false
+                    }
+                ) {
+                    Text(viewModel.t("btn_cancel"))
                 }
             },
             text = {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     OutlinedTextField(
                         value = fieldName,
-                        onValueChange = { fieldName = it.replace(" ", "") },
-                        label = { Text("Имя колонки (snakeCase/camelCase)") },
+                        onValueChange = { fieldName = it },
+                        label = { Text(viewModel.t("field_name_l")) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
 
-                    Text("Тип Данных:", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        fieldTypes.forEach { type ->
-                            FilterChip(
-                                selected = selectedFieldType == type,
-                                onClick = { selectedFieldType = type },
-                                label = { Text(type, fontSize = 10.sp) },
-                                modifier = Modifier.weight(1f)
-                            )
+                    Column {
+                        Text(
+                            text = viewModel.t("field_type_l"),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            fieldTypes.forEach { type ->
+                                FilterChip(
+                                    selected = selectedFieldType == type,
+                                    onClick = { selectedFieldType = type },
+                                    label = { Text(type) }
+                                )
+                            }
                         }
                     }
 
                     OutlinedTextField(
                         value = fieldDesc,
                         onValueChange = { fieldDesc = it },
-                        label = { Text("Описание поля (для AI и документации)") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        label = { Text(viewModel.t("field_desc_l")) },
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
@@ -623,5 +648,17 @@ fun ModulesScreen(viewModel: CmsViewModel) {
     }
 }
 
-// Extension inline sizing helper
-fun Modifier.size(size: Int): Modifier = this.size(size.dp)
+private fun getIconForModule(mod: String): androidx.compose.ui.graphics.vector.ImageVector {
+    return when(mod.trim().lowercase()) {
+        "blog" -> Icons.Default.Book
+        "users" -> Icons.Default.AccountBox
+        "gallery" -> Icons.Default.Image
+        "shop" -> Icons.Default.ShoppingCart
+        "crm" -> Icons.Default.ContactPage
+        "wiki" -> Icons.Default.Info
+        "ai" -> Icons.Default.Psychology
+        "analytics" -> Icons.Default.Star
+        else -> Icons.Default.Extension
+    }
+}
+

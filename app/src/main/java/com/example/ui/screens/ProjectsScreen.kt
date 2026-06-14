@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
@@ -14,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -28,6 +30,7 @@ import java.util.*
 fun ProjectsScreen(viewModel: CmsViewModel) {
     val projectsState by viewModel.projectsState.collectAsState()
     val activeProj by viewModel.currentProject.collectAsState()
+    val context = LocalContext.current
 
     var showCreateDialog by remember { mutableStateOf(false) }
 
@@ -42,27 +45,29 @@ fun ProjectsScreen(viewModel: CmsViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Проекты Систем",
+                    text = viewModel.t("projects_header"),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Выберите активную конфигурацию CMS",
+                    text = viewModel.t("projects_desc"),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
+            Spacer(modifier = Modifier.width(8.dp))
+
             Button(
                 onClick = { showCreateDialog = true },
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Создать проект")
+                Icon(Icons.Default.Add, contentDescription = "Create")
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Создать")
+                Text(viewModel.t("add_field_btn"))
             }
         }
 
@@ -76,7 +81,7 @@ fun ProjectsScreen(viewModel: CmsViewModel) {
             }
             is ProjectsUiState.Error -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Ошибка загрузки: ${state.message}", color = MaterialTheme.colorScheme.error)
+                    Text("Error: ${state.message}", color = MaterialTheme.colorScheme.error)
                 }
             }
             is ProjectsUiState.Success -> {
@@ -89,6 +94,7 @@ fun ProjectsScreen(viewModel: CmsViewModel) {
                         ProjectItemCard(
                             project = proj,
                             isSelected = isSelected,
+                            viewModel = viewModel,
                             onSelect = { viewModel.selectProject(proj) },
                             onDelete = { viewModel.deleteProject(proj) }
                         )
@@ -100,10 +106,15 @@ fun ProjectsScreen(viewModel: CmsViewModel) {
 
     if (showCreateDialog) {
         CreateProjectDialog(
+            viewModel = viewModel,
             onDismiss = { showCreateDialog = false },
             onCreate = { name, desc, techStack, repo, branch ->
-                viewModel.createProject(name, desc, techStack, repo, branch)
-                showCreateDialog = false
+                if (name.isBlank() || repo.isBlank()) {
+                    Toast.makeText(context, viewModel.t("toast_fill_fields"), Toast.LENGTH_LONG).show()
+                } else {
+                    viewModel.createProject(name, desc, techStack, repo, branch)
+                    showCreateDialog = false
+                }
             }
         )
     }
@@ -113,6 +124,7 @@ fun ProjectsScreen(viewModel: CmsViewModel) {
 fun ProjectItemCard(
     project: CmsProject,
     isSelected: Boolean,
+    viewModel: CmsViewModel,
     onSelect: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -152,7 +164,7 @@ fun ProjectItemCard(
                 IconButton(onClick = onDelete) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Удалить проект",
+                        contentDescription = "Delete",
                         tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
                     )
                 }
@@ -180,7 +192,7 @@ fun ProjectItemCard(
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "Ветка: origin/${project.githubBranch}",
+                        text = "${viewModel.t("card_branch")}: origin/${project.githubBranch}",
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -188,7 +200,7 @@ fun ProjectItemCard(
 
                 val formattedDate = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(Date(project.createdAt))
                 Text(
-                    text = "Инициализирован: $formattedDate",
+                    text = "$formattedDate",
                     fontSize = 10.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
@@ -200,6 +212,7 @@ fun ProjectItemCard(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CreateProjectDialog(
+    viewModel: CmsViewModel,
     onDismiss: () -> Unit,
     onCreate: (String, String, String, String, String) -> Unit
 ) {
@@ -213,22 +226,19 @@ fun CreateProjectDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Создать CMS Проект") },
+        title = { Text(viewModel.t("create_new_project")) },
         confirmButton = {
             Button(
                 onClick = {
-                    if (name.isNotBlank()) {
-                        onCreate(name, description, selectedTechStack, repo, branch)
-                    }
-                },
-                enabled = name.isNotBlank()
+                    onCreate(name, description, selectedTechStack, repo, branch)
+                }
             ) {
-                Text("Создать")
+                Text(viewModel.t("btn_add"))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Отмена")
+                Text(viewModel.t("btn_cancel"))
             }
         },
         text = {
@@ -240,7 +250,7 @@ fun CreateProjectDialog(
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = { Text("Название проекта") },
+                        label = { Text(viewModel.t("project_name_label")) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -249,12 +259,12 @@ fun CreateProjectDialog(
                     OutlinedTextField(
                         value = description,
                         onValueChange = { description = it },
-                        label = { Text("Описание") },
+                        label = { Text(viewModel.t("project_desc_label")) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
                 item {
-                    Text("Технологический стек:", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Text(viewModel.t("tech_stack_label"), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -272,7 +282,7 @@ fun CreateProjectDialog(
                     OutlinedTextField(
                         value = repo,
                         onValueChange = { repo = it },
-                        label = { Text("GitHub Репозиторий (owner/repo)") },
+                        label = { Text(viewModel.t("github_repo_label")) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -281,7 +291,7 @@ fun CreateProjectDialog(
                     OutlinedTextField(
                         value = branch,
                         onValueChange = { branch = it },
-                        label = { Text("Ветка Git по умолчанию") },
+                        label = { Text(viewModel.t("github_branch_label")) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )

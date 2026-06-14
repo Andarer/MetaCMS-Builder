@@ -26,7 +26,11 @@ fun AboutScreen(viewModel: CmsViewModel) {
     val currentProj by viewModel.currentProject.collectAsState()
 
     var activeTab by remember { mutableStateOf(0) }
-    val tabs = listOf("ТЗ & Доки", "Архитектура", "Roadmap & Logs")
+    val tabs = listOf(
+        viewModel.t("about_tab_tz"), 
+        viewModel.t("about_tab_architecture"), 
+        viewModel.t("about_tab_roadmap")
+    )
 
     // Local roadmaps states representing interactive features
     var item1 by remember { mutableStateOf(true) }
@@ -45,12 +49,12 @@ fun AboutScreen(viewModel: CmsViewModel) {
     ) {
         Column {
             Text(
-                text = "Документация MetaCMS",
+                text = viewModel.t("about_header_title"),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Изучите архитектурные стандарты, дорожную карту и инструкции к платформе",
+                text = viewModel.t("about_header_desc"),
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -79,38 +83,38 @@ fun AboutScreen(viewModel: CmsViewModel) {
                         ) {
                             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                 Text(
-                                    text = "Платформа MetaCMS Builder v1.0.0",
+                                    text = "MetaCMS Builder Engine v1.3.0",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 16.sp,
                                     color = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
-                                    text = "Русский / English Dual Engine",
+                                    text = "Multilingual Localization Dynamic Engine",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
 
                                 Text(
-                                    text = "MetaCMS Builder — это полноценная визуальная Android First среда для генерации современных масштабируемых CMS, CRM, Wiki, блогов, магазинов и решений искусственного интеллекта на базе единой кодовой базы.",
+                                    text = viewModel.t("about_engine_desc"),
                                     fontSize = 13.sp,
                                     lineHeight = 18.sp
                                 )
 
                                 Divider(color = MaterialTheme.colorScheme.outlineVariant)
 
-                                Text("Ключевые Особенности:", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text(viewModel.t("key_features_title"), fontWeight = FontWeight.Bold, fontSize = 14.sp)
 
-                                BulletPoint("Android First: Управление, моделирование таблиц данных и экспорт прямо со смартфона.")
-                                BulletPoint("GitHub First: Интеграция с GitHub Pages для полноценного веб-хостинга статических PWA систем.")
-                                BulletPoint("AI First: Использование ИИ-ассистентов на базе Google Gemini 3.5 для авто-генерации структур БД.")
-                                BulletPoint("Module First: Готовые модули Blog, CRM, Users, Gallery, Shop, Wiki, AI, Analytics в один клик.")
+                                BulletPoint(viewModel.t("key_feature_1"), color = MaterialTheme.colorScheme.primary)
+                                BulletPoint(viewModel.t("key_feature_2"), color = MaterialTheme.colorScheme.primary)
+                                BulletPoint(viewModel.t("key_feature_3"), color = MaterialTheme.colorScheme.primary)
+                                BulletPoint(viewModel.t("key_feature_4"), color = MaterialTheme.colorScheme.primary)
                             }
                         }
                     }
 
                     item {
-                        Text("Инструкция по Offline PWA & Docker Сборкам:", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(viewModel.t("deploy_pwa_title"), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                     }
 
                     item {
@@ -146,7 +150,7 @@ fun AboutScreen(viewModel: CmsViewModel) {
                 1 -> { // Architecture Layout Details
                     item {
                         Text(
-                            text = "Структура Архитектурных Модулей MetaCMS",
+                            text = viewModel.t("architecture_flow_title"),
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp,
                             color = MaterialTheme.colorScheme.onSurface
@@ -159,20 +163,20 @@ fun AboutScreen(viewModel: CmsViewModel) {
                             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                         ) {
                             Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                FolderElement("/app", "Корневая оболочка Android, координирующая визуальный билдер.")
-                                FolderElement("/core", "Внутреннее ядро, сервисы авторизации, СУБД SQLite локального состояния.")
-                                FolderElement("/builder", "ИИ транспиляторы, компиляторы Markdown спецификаций ТЗ и Dart файлов.")
-                                FolderElement("/modules", "Код-пакеты (Blog, CRM, Shop, AI, Analytics, Wiki Engine).")
-                                FolderElement("/docs", "Документация, README, CHANGELOG и спецификации систем.")
-                                FolderElement("/docker", "Сценарии Docker-compose и Dockerfile тонкой настройки окружений.")
-                                FolderElement("/.github", "Профайлы GitHub Actions сборников deploy.yml для Pages.")
+                                FolderElement("/app", viewModel.t("folder_app"), color = MaterialTheme.colorScheme.primary)
+                                FolderElement("/core", viewModel.t("folder_core"), color = MaterialTheme.colorScheme.primary)
+                                FolderElement("/builder", viewModel.t("folder_builder"), color = MaterialTheme.colorScheme.primary)
+                                FolderElement("/modules", viewModel.t("folder_modules"), color = MaterialTheme.colorScheme.primary)
+                                FolderElement("/docs", viewModel.t("folder_docs"), color = MaterialTheme.colorScheme.primary)
+                                FolderElement("/docker", viewModel.t("folder_docker"), color = MaterialTheme.colorScheme.primary)
+                                FolderElement("/.github", viewModel.t("folder_github"), color = MaterialTheme.colorScheme.primary)
                             }
                         }
                     }
 
                     item {
                         Text(
-                            text = "Диаграмма Потоков Данных Web PWA:",
+                            text = viewModel.t("flow_diagram_label"),
                             fontWeight = FontWeight.Bold,
                             fontSize = 13.sp
                         )
@@ -188,7 +192,7 @@ fun AboutScreen(viewModel: CmsViewModel) {
                                 .padding(12.dp)
                         ) {
                             Text(
-                                text = "Android Visual DB Model (Room SQLite) --> Export Zip or Github Commits (PAT Tokens) --> Trigger Actions Compiling Node/Flutter Web --> Push gh-pages branch --> Live URL!",
+                                text = "Android Visual DB Model (Room SQLite) --> Save Preferences (Multilang & Styles) --> Simulate local Database (Visual Sandbox) --> Export Web PWA & Docker specs --> Trigger deploy.yml Actions --> Publish on gh-pages!",
                                 fontSize = 11.sp,
                                 fontFamily = FontFamily.Monospace,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -200,7 +204,7 @@ fun AboutScreen(viewModel: CmsViewModel) {
                 2 -> { // Roadmap & Interactive Milestone Checklists
                     item {
                         Text(
-                            text = "Дорожная Карта MetaCMS (ROADMAP)",
+                            text = viewModel.t("roadmap_title"),
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp
                         )
@@ -209,38 +213,38 @@ fun AboutScreen(viewModel: CmsViewModel) {
                     item {
                         Card {
                             Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("План Разработки проекта:", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                Text(viewModel.t("roadmap_subtitle"), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
 
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Checkbox(checked = item1, onCheckedChange = { item1 = it })
-                                    Text("v1.0.0: Сборка UI Билдера, Room архитектура, селф-хостинг", fontSize = 12.sp)
+                                    Text("v1.0.0: ${viewModel.t("roadmap_v1")}", fontSize = 12.sp)
                                 }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Checkbox(checked = item2, onCheckedChange = { item2 = it })
-                                    Text("v1.1.0: Интеграция Gemini API для автоконфигурации схем СУБД", fontSize = 12.sp)
+                                    Text("v1.1.0: ${viewModel.t("roadmap_v2")}", fontSize = 12.sp)
                                 }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Checkbox(checked = item3, onCheckedChange = { item3 = it })
-                                    Text("v1.2.0: Поддержка консоли Simulated Git: Commits & Pushes", fontSize = 12.sp)
+                                    Text("v1.2.0: ${viewModel.t("roadmap_v3")}", fontSize = 12.sp)
                                 }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Checkbox(checked = item4, onCheckedChange = { item4 = it })
-                                    Text("v1.3.0: Живой интерактивный симулятор виртуальной БД (Sandbox Player)", fontSize = 12.sp)
+                                    Text("v1.3.0: ${viewModel.t("roadmap_v4")}", fontSize = 12.sp)
                                 }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Checkbox(checked = item5, onCheckedChange = { item5 = it })
-                                    Text("v1.5.0: Локальная компиляция Flutter Web PWA", fontSize = 12.sp)
+                                    Text("v1.5.0: ${viewModel.t("roadmap_v5")}", fontSize = 12.sp)
                                 }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Checkbox(checked = item6, onCheckedChange = { item6 = it })
-                                    Text("v2.0.0 Global: Облачный экспорт баз данных в Spanner/Cloud SQL", fontSize = 12.sp)
+                                    Text("v2.0.0 Global: ${viewModel.t("roadmap_v6")}", fontSize = 12.sp)
                                 }
                             }
                         }
                     }
 
                     item {
-                        Text("История Изменений (CHANGELOG):", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(viewModel.t("changelog_title"), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                     }
 
                     item {
@@ -249,15 +253,15 @@ fun AboutScreen(viewModel: CmsViewModel) {
                         ) {
                             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Text("v1.3.0 Release (Текущий)", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.tertiary)
-                                BulletPoint("Интегрирована живая песочница баз данных (Database Simulation Engine).")
-                                BulletPoint("Возможность вводить значения полей и генерировать записи таблиц динамически.")
-                                BulletPoint("Добавлена поддержка интерактивного удаления и модификации мок-записей прямо из Android.")
+                                BulletPoint(viewModel.t("changelog_v1_3_1"), color = MaterialTheme.colorScheme.primary)
+                                BulletPoint(viewModel.t("changelog_v1_3_2"), color = MaterialTheme.colorScheme.primary)
+                                BulletPoint(viewModel.t("changelog_v1_3_3"), color = MaterialTheme.colorScheme.primary)
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text("v1.0.0 Core Build", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                BulletPoint("Интегрировано Room Database для сохранения проектов и модулей.")
-                                BulletPoint("Добавлен живой визуализатор исходного кода Dart для 8 модулей.")
-                                BulletPoint("Подключена модель ИИ Gemini 3.5 Flash с разбором и автоприменением JSON-Schema.")
-                                BulletPoint("Спроектирован премиальный UI-дизайн Material 3 с Edge-To-Edge отображением.")
+                                BulletPoint(viewModel.t("changelog_v1_0_1"), color = MaterialTheme.colorScheme.primary)
+                                BulletPoint(viewModel.t("changelog_v1_0_2"), color = MaterialTheme.colorScheme.primary)
+                                BulletPoint(viewModel.t("changelog_v1_0_3"), color = MaterialTheme.colorScheme.primary)
+                                BulletPoint(viewModel.t("changelog_v1_0_4"), color = MaterialTheme.colorScheme.primary)
                             }
                         }
                     }
@@ -268,7 +272,7 @@ fun AboutScreen(viewModel: CmsViewModel) {
 }
 
 @Composable
-fun BulletPoint(text: String) {
+fun BulletPoint(text: String, color: Color = MaterialTheme.colorScheme.primary) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -276,13 +280,13 @@ fun BulletPoint(text: String) {
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        Text("•", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+        Text("•", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = color)
         Text(text = text, fontSize = 12.sp)
     }
 }
 
 @Composable
-fun FolderElement(name: String, desc: String) {
+fun FolderElement(name: String, desc: String, color: Color = MaterialTheme.colorScheme.primary) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -290,7 +294,7 @@ fun FolderElement(name: String, desc: String) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Icon(Icons.Default.Folder, contentDescription = null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+        Icon(Icons.Default.Folder, contentDescription = null, modifier = Modifier.size(18.dp), tint = color)
         Column {
             Text(name, fontWeight = FontWeight.Bold, fontSize = 13.sp, fontFamily = FontFamily.Monospace)
             Text(desc, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)

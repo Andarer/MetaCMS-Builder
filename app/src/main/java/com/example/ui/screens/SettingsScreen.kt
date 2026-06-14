@@ -25,7 +25,6 @@ import com.example.viewmodel.CmsViewModel
 
 @Composable
 fun SettingsScreen(viewModel: CmsViewModel) {
-    val currentProj by viewModel.currentProject.collectAsState()
     val context = LocalContext.current
 
     var githubToken by remember { mutableStateOf("") }
@@ -34,8 +33,11 @@ fun SettingsScreen(viewModel: CmsViewModel) {
     val models = listOf("gemini-3.5-flash (Basic tasks, summaries)", "gemini-3.1-pro-preview (Complex layout designs)")
     var selectedModel by remember { mutableStateOf(models[0]) }
 
-    val appThemes = listOf("Cosmic Slate Theme (Default)", "Clean Polar Minimalism", "Neon Brutalism")
-    var selectedTheme by remember { mutableStateOf(appThemes[0]) }
+    val currentTheme by viewModel.selectedThemeMode.collectAsState()
+    val currentLang by viewModel.selectedLanguage.collectAsState()
+
+    val themesList = listOf("System", "Day", "Night", "Scheduled")
+    val langsList = listOf("System", "ru", "en", "uk")
 
     LazyColumn(
         modifier = Modifier
@@ -47,15 +49,107 @@ fun SettingsScreen(viewModel: CmsViewModel) {
         item {
             Column {
                 Text(
-                    text = "Настройки Системы",
+                    text = viewModel.t("settings_header_title"),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Конфигурируйте токены интеграций и персональные параметры среды",
+                    text = viewModel.t("settings_header_desc"),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+        }
+
+        // MultiLang selection block
+        item {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
+            ) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(Icons.Default.Translate, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Text(viewModel.t("lang_setting_label"), fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    }
+
+                    Column {
+                        langsList.forEach { code ->
+                            val label = when(code) {
+                                "System" -> viewModel.t("lang_option_system")
+                                "ru" -> "Русский (по умолчанию)"
+                                "en" -> "English"
+                                "uk" -> "Українська"
+                                else -> code
+                            }
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = currentLang == code,
+                                    onClick = { 
+                                        viewModel.setLanguage(code)
+                                        Toast.makeText(context, "Язык обновлен / Language updated", Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(label, fontSize = 13.sp, fontWeight = if (currentLang == code) FontWeight.Bold else FontWeight.Normal)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Themes selection block
+        item {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
+            ) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(Icons.Default.Palette, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary)
+                        Text(viewModel.t("theme_setting_label"), fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    }
+
+                    Column {
+                        themesList.forEach { mode ->
+                            val label = when(mode) {
+                                "System" -> viewModel.t("theme_option_system")
+                                "Day" -> viewModel.t("theme_option_day")
+                                "Night" -> viewModel.t("theme_option_night")
+                                "Scheduled" -> viewModel.t("theme_option_scheduled")
+                                else -> mode
+                            }
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = currentTheme == mode,
+                                    onClick = { 
+                                        viewModel.setThemeMode(mode)
+                                        Toast.makeText(context, "Тема обновлена / Theme updated", Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(label, fontSize = 13.sp, fontWeight = if (currentTheme == mode) FontWeight.Bold else FontWeight.Normal)
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -70,11 +164,11 @@ fun SettingsScreen(viewModel: CmsViewModel) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Icon(Icons.Default.VpnKey, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                        Text("Авторизация GitHub (Personal Access Token)", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        Text(viewModel.t("github_auth_title"), fontWeight = FontWeight.Bold, fontSize = 15.sp)
                     }
 
                     Text(
-                        text = "Секретный токен используется для автоматической синхронизации и пушей в ваши GitHub Pages и ветки репозиториев.",
+                        text = viewModel.t("github_auth_desc"),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -82,7 +176,7 @@ fun SettingsScreen(viewModel: CmsViewModel) {
                     OutlinedTextField(
                         value = githubToken,
                         onValueChange = { githubToken = it },
-                        label = { Text("GitHub Fine-grained PAT Token") },
+                        label = { Text(viewModel.t("github_token_label")) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         visualTransformation = if (hideToken) PasswordVisualTransformation() else VisualTransformation.None,
@@ -90,7 +184,7 @@ fun SettingsScreen(viewModel: CmsViewModel) {
                             IconButton(onClick = { hideToken = !hideToken }) {
                                 Icon(
                                     imageVector = if (hideToken) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                    contentDescription = "Показать/Скрыть"
+                                    contentDescription = "Show/Hide"
                                 )
                             }
                         }
@@ -99,12 +193,12 @@ fun SettingsScreen(viewModel: CmsViewModel) {
                     Button(
                         onClick = {
                             if (githubToken.isNotEmpty()) {
-                                Toast.makeText(context, "GitHub Token successfully stored locally!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Stored local PAT token success!", Toast.LENGTH_SHORT).show()
                             }
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Верифицировать и сохранить токен")
+                        Text(viewModel.t("verify_save_token"))
                     }
                 }
             }
@@ -121,11 +215,11 @@ fun SettingsScreen(viewModel: CmsViewModel) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Icon(Icons.Default.Psychology, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary)
-                        Text("Настройки ИИ Модели (Google Gemini API)", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        Text(viewModel.t("gemini_api_settings"), fontWeight = FontWeight.Bold, fontSize = 15.sp)
                     }
 
                     Text(
-                        text = "Используйте панель секретов в Google AI Studio (BuildConfig.GEMINI_API_KEY) для управления ключом модели. Выберите активную языковую модель ниже:",
+                        text = viewModel.t("gemini_api_desc"),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -151,51 +245,22 @@ fun SettingsScreen(viewModel: CmsViewModel) {
             }
         }
 
-        // Styling and themes
-        item {
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
-            ) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("Кастомизация Среды", fontWeight = FontWeight.Bold, fontSize = 15.sp)
-
-                    Column {
-                        appThemes.forEach { theme ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(
-                                    selected = selectedTheme == theme,
-                                    onClick = { selectedTheme = theme }
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(theme, fontSize = 13.sp)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // App details
+        // Reset database / Clean-up
         item {
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.15f))
             ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("Обслуживание системы", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onErrorContainer)
-                    Text("Вы можете сбросить все воркспейсы и восстановить предустановленные шаблоны (Wiki, Commerce, NewsBlog).", fontSize = 11.sp)
+                    Text(viewModel.t("system_maintenance"), fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onErrorContainer)
+                    Text(viewModel.t("reset_desc"), fontSize = 11.sp)
                     OutlinedButton(
                         onClick = {
-                            Toast.makeText(context, "Database cleared! Reload app to seed standard showpieces.", Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, viewModel.t("toast_db_cleared"), Toast.LENGTH_LONG).show()
                         },
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.error)
                     ) {
-                        Text("Очистить кэш базы данных MetaCMS")
+                        Text(viewModel.t("reset_db_btn"))
                     }
                 }
             }

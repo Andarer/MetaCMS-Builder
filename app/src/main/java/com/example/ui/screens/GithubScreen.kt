@@ -31,8 +31,8 @@ fun GithubScreen(viewModel: CmsViewModel) {
 
     var commitMsg by remember { mutableStateOf("") }
     var showReleaseDialog by remember { mutableStateOf(false) }
-    var releaseVersion by remember { mutableStateOf("v1.0.0") }
-    var releaseNotes by remember { mutableStateOf("Initial release with AI generated Blog modules and CRM tables config.") }
+    var releaseVersion by remember { mutableStateOf("v1.4.0") }
+    var releaseNotes by remember { mutableStateOf("Localized update. Added multi-language engine support.") }
 
     val coroutineScope = rememberCoroutineScope()
     val listState = rememberLazyListState()
@@ -46,10 +46,19 @@ fun GithubScreen(viewModel: CmsViewModel) {
 
     if (currentProj == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Default.CloudQueue, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(16.dp)) {
+                Icon(
+                    imageVector = Icons.Default.CloudQueue, 
+                    contentDescription = null, 
+                    modifier = Modifier.size(64.dp), 
+                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Пожалуйста, сначала создайте или выберите проект.", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    text = viewModel.t("specs_create_project_alert"), 
+                    fontWeight = FontWeight.Bold, 
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
         return
@@ -64,12 +73,12 @@ fun GithubScreen(viewModel: CmsViewModel) {
     ) {
         Column {
             Text(
-                text = "Консоль GitHub First",
+                text = viewModel.t("github_header_title"),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Управляйте коммитами, релизами и развертыванием в GitHub Pages",
+                text = viewModel.t("github_header_desc"),
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -89,7 +98,7 @@ fun GithubScreen(viewModel: CmsViewModel) {
             ) {
                 Column {
                     Text(
-                        text = "Репозиторий проекта:",
+                        text = viewModel.t("project_repo_label"),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -100,7 +109,7 @@ fun GithubScreen(viewModel: CmsViewModel) {
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "Целевая Ветка: origin/${currentProj!!.githubBranch}",
+                        text = "${viewModel.t("card_branch")}: origin/${currentProj!!.githubBranch}",
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -184,7 +193,7 @@ fun GithubScreen(viewModel: CmsViewModel) {
             OutlinedTextField(
                 value = commitMsg,
                 onValueChange = { commitMsg = it },
-                label = { Text("Сообщение коммита (Commit Message)", fontSize = 12.sp) },
+                label = { Text(viewModel.t("commit_msg_label"), fontSize = 12.sp) },
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -195,7 +204,7 @@ fun GithubScreen(viewModel: CmsViewModel) {
                             commitMsg = ""
                         }
                     }) {
-                        Icon(Icons.Default.SaveAlt, contentDescription = "Зафиксировать изменения")
+                        Icon(Icons.Default.SaveAlt, contentDescription = "Commit changes")
                     }
                 }
             )
@@ -237,7 +246,7 @@ fun GithubScreen(viewModel: CmsViewModel) {
                 ) {
                     Icon(Icons.Default.NewReleases, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Publish Release", fontSize = 12.sp)
+                    Text(viewModel.t("publish_release"), fontSize = 12.sp)
                 }
             }
         }
@@ -246,7 +255,7 @@ fun GithubScreen(viewModel: CmsViewModel) {
     if (showReleaseDialog) {
         AlertDialog(
             onDismissRequest = { showReleaseDialog = false },
-            title = { Text("Опубликовать Релиз") },
+            title = { Text(viewModel.t("publish_release_diag")) },
             confirmButton = {
                 Button(onClick = {
                     if (releaseVersion.isNotBlank()) {
@@ -254,12 +263,12 @@ fun GithubScreen(viewModel: CmsViewModel) {
                         showReleaseDialog = false
                     }
                 }) {
-                    Text("Опубликовать")
+                    Text(viewModel.t("btn_publish"))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showReleaseDialog = false }) {
-                    Text("Отмена")
+                    Text(viewModel.t("btn_cancel"))
                 }
             },
             text = {
@@ -267,7 +276,7 @@ fun GithubScreen(viewModel: CmsViewModel) {
                     OutlinedTextField(
                         value = releaseVersion,
                         onValueChange = { releaseVersion = it },
-                        label = { Text("Тег Версии (например, v1.1.0)") },
+                        label = { Text(viewModel.t("version_tag_label")) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -275,7 +284,7 @@ fun GithubScreen(viewModel: CmsViewModel) {
                     OutlinedTextField(
                         value = releaseNotes,
                         onValueChange = { releaseNotes = it },
-                        label = { Text("Описание обновлений (Changelog)") },
+                        label = { Text(viewModel.t("changelog_field_label")) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

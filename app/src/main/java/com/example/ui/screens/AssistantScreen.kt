@@ -30,10 +30,10 @@ fun AssistantScreen(viewModel: CmsViewModel) {
     var customPrompt by remember { mutableStateOf("") }
 
     val quickSuggestions = listOf(
-        "Создай каталог Книг с авторами и жанрами",
-        "Добавь модуль Задач (To Do) со статусом",
-        "Сконфигурируй базу отзывов для интернет магазина",
-        "Создай схему для CRM сделок и контактов лидов"
+        viewModel.t("prompt_suggestion_books"),
+        viewModel.t("prompt_suggestion_todo"),
+        viewModel.t("prompt_suggestion_reviews"),
+        viewModel.t("prompt_suggestion_crm")
     )
 
     Column(
@@ -44,12 +44,12 @@ fun AssistantScreen(viewModel: CmsViewModel) {
     ) {
         Column {
             Text(
-                text = "ИИ Архитектор (AI Assistant)",
+                text = viewModel.t("assistant_header_title"),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Генерируйте архитектуру, код и схемы данных налету при поддержке Gemini 3.5",
+                text = viewModel.t("assistant_header_desc"),
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -69,7 +69,7 @@ fun AssistantScreen(viewModel: CmsViewModel) {
             ) {
                 Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp))
                 Text(
-                    text = "Использует безопасный ключ API, настроенный через панель секретов в Google AI Studio BuildConfig.",
+                    text = viewModel.t("gemini_api_key_warning"),
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onErrorContainer
                 )
@@ -108,13 +108,13 @@ fun AssistantScreen(viewModel: CmsViewModel) {
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    text = "Система готова к генерации.",
+                                    text = viewModel.t("ai_ready_title"),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Text(
-                                    text = "Выберите предложение ниже или отправьте своё ТЗ.",
+                                    text = viewModel.t("ai_ready_desc"),
                                     fontSize = 12.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -138,7 +138,7 @@ fun AssistantScreen(viewModel: CmsViewModel) {
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Text(
-                                        text = "Ответ AI Архитектора:",
+                                        text = viewModel.t("ai_response_prefix"),
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 12.sp,
                                         color = MaterialTheme.colorScheme.primary
@@ -168,9 +168,10 @@ fun AssistantScreen(viewModel: CmsViewModel) {
                         CircularProgressIndicator()
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "ИИ Архитектор проектирует...",
+                            text = viewModel.t("ai_designing_loader"),
                             fontWeight = FontWeight.SemiBold,
-                            fontSize = 12.sp
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -181,7 +182,7 @@ fun AssistantScreen(viewModel: CmsViewModel) {
 
         // Quick Suggestions
         Text(
-            text = "Варианты ТЗ для генерации:",
+            text = viewModel.t("ai_suggestions_title"),
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -215,7 +216,7 @@ fun AssistantScreen(viewModel: CmsViewModel) {
             OutlinedTextField(
                 value = customPrompt,
                 onValueChange = { customPrompt = it },
-                placeholder = { Text("Например: Добавь блог постов с лайками", fontSize = 13.sp) },
+                placeholder = { Text(viewModel.t("ai_type_placeholder"), fontSize = 13.sp) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
                 maxLines = 2,
@@ -236,7 +237,7 @@ fun AssistantScreen(viewModel: CmsViewModel) {
                 contentColor = Color.White,
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Icon(Icons.Default.Send, contentDescription = "Отправить ТЗ", modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.Send, contentDescription = "Send prompt", modifier = Modifier.size(18.dp))
             }
         }
     }

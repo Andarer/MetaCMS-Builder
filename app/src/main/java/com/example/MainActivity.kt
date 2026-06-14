@@ -29,8 +29,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MyApplicationTheme {
-                val viewModel: CmsViewModel = viewModel()
+            val viewModel: CmsViewModel = viewModel()
+            val themeMode by viewModel.selectedThemeMode.collectAsState()
+            val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
+            val computedDarkTheme = remember(themeMode, systemDark) {
+                when (themeMode) {
+                    "Day" -> false
+                    "Night" -> true
+                    "Scheduled" -> {
+                        val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+                        hour !in 6..19
+                    }
+                    else -> systemDark
+                }
+            }
+
+            MyApplicationTheme(darkTheme = computedDarkTheme) {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route ?: "dashboard"
@@ -41,13 +55,13 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
                         val screenTitle = when (currentRoute) {
-                            "dashboard" -> "MetaCMS Dashboard"
-                            "projects" -> "Воркспейсы"
-                            "modules" -> "Конфигуратор"
-                            "assistant" -> "AI Архитектор"
-                            "github" -> "Git Консоль"
-                            "settings" -> "Параметры"
-                            "about" -> "Документация"
+                            "dashboard" -> viewModel.t("screen_title_dashboard")
+                            "projects" -> viewModel.t("screen_title_projects")
+                            "modules" -> viewModel.t("screen_title_modules")
+                            "assistant" -> viewModel.t("screen_title_assistant")
+                            "github" -> viewModel.t("screen_title_github")
+                            "settings" -> viewModel.t("screen_title_settings")
+                            "about" -> viewModel.t("screen_title_about")
                             else -> "MetaCMS Builder"
                         }
 
@@ -61,7 +75,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                     activeProject?.let {
                                         Text(
-                                            text = "Проект: ${it.name}",
+                                            text = "${viewModel.t("active_project_label")}: ${it.name}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.primary
                                         )
@@ -75,7 +89,7 @@ class MainActivity : ComponentActivity() {
                                 ) {
                                     Icon(
                                         imageVector = if (currentRoute == "about") Icons.Filled.MenuBook else Icons.Outlined.MenuBook,
-                                        contentDescription = "Документация"
+                                        contentDescription = viewModel.t("screen_title_about")
                                     )
                                 }
                                 IconButton(
@@ -84,7 +98,7 @@ class MainActivity : ComponentActivity() {
                                 ) {
                                     Icon(
                                         imageVector = if (currentRoute == "settings") Icons.Filled.Settings else Icons.Outlined.Settings,
-                                        contentDescription = "Настройки"
+                                        contentDescription = viewModel.t("screen_title_settings")
                                     )
                                 }
                             },
@@ -102,35 +116,35 @@ class MainActivity : ComponentActivity() {
                             val items = listOf(
                                 NavigationBarNavItem(
                                     route = "dashboard",
-                                    label = "Инфо",
+                                    label = viewModel.t("nav_info"),
                                     selectedIcon = Icons.Filled.Dashboard,
                                     unselectedIcon = Icons.Outlined.Dashboard,
                                     tag = "nav_dashboard"
                                 ),
                                 NavigationBarNavItem(
                                     route = "projects",
-                                    label = "Проекты",
+                                    label = viewModel.t("nav_projects"),
                                     selectedIcon = Icons.Filled.FolderOpen,
                                     unselectedIcon = Icons.Outlined.Folder,
                                     tag = "nav_projects"
                                 ),
                                 NavigationBarNavItem(
                                     route = "modules",
-                                    label = "Схема",
+                                    label = viewModel.t("nav_modules"),
                                     selectedIcon = Icons.Filled.Extension,
                                     unselectedIcon = Icons.Outlined.Extension,
                                     tag = "nav_modules"
                                 ),
                                 NavigationBarNavItem(
                                     route = "assistant",
-                                    label = "ИИ",
+                                    label = viewModel.t("nav_assistant"),
                                     selectedIcon = Icons.Filled.Psychology,
                                     unselectedIcon = Icons.Outlined.Psychology,
                                     tag = "nav_assistant"
                                 ),
                                 NavigationBarNavItem(
                                     route = "github",
-                                    label = "Git",
+                                    label = viewModel.t("nav_github"),
                                     selectedIcon = Icons.Filled.Code,
                                     unselectedIcon = Icons.Outlined.Code,
                                     tag = "nav_github"

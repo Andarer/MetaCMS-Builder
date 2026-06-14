@@ -1,21 +1,91 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Платформа MetaCMS Builder 🚀
 
-# Run and deploy your AI Studio app
+**MetaCMS Builder** — это высокотехнологичная, визуальная Android First среда для генерации корпоративных CMS, CRM, Wiki, блогов, интерактивных веб-витрин и решений искусственного интеллекта на базе единого масштабируемого Flutter UI ядра.
 
-This contains everything you need to run your app locally.
+Платформа спроектирована с акцентом на автономность управления, интеграцию с облачными ИИ-моделями и бесшовный экспорт в статический веб-хостинг.
 
-View your app in AI Studio: https://ai.studio/apps/1cdeed81-e04a-43bb-aece-c83cc0733fe0
+---
 
-## Run Locally
+## 🏗 Архитектура Проекта (Module First)
 
-**Prerequisites:**  [Android Studio](https://developer.android.com/studio)
+Кодовая база структурирована в соответствии со стандартами модульного монолита и чистой архитектуры:
 
+*   **`/app`** — Оболочка Android-приложения на базе Jetpack Compose и Material Design 3. Координирует управление визуальными редакторами схем и параметров.
+*   **`/core`** — Хранилище бизнес-логики, локальные репозитории SQLite Room, менеджеры конфигураций и системы кэширования параметров.
+*   **`/builder`** — Транспиляторы схемы базы данных, генерирующие готовые классы сущностей Dart и Dart-контроллеры для сборки Flutter Web.
+*   **`/modules`** — Репозиторий автономных программных модулей, подключаемых в один клик:
+    *   `Blog` — Публикации, категории, теги.
+    *   `Users` — Менеджер ролей, списки доступов и профили.
+    *   `Gallery` — Сетки изображений, мета-атрибуты и хранилище медиа.
+    *   `Shop` — Карточки товаров, корзины, история продаж.
+    *   `CRM` — Lead-трекинг, воронки продаж, статус сделок.
+    *   `Wiki` — Иерархические базы знаний, доки, статьи.
+    *   `AI` — Коннекторы нейросетевых агентов Google Gemini.
+    *   `Analytics` — Сводные графики, метрики активности и логи.
+*   **`/docs`** — Сводные спецификации, интерактивная генерация README, CHANGELOG и Roadmap.
+*   **`/docker`** — Сценарии контейнеризации и Multi-stage Docker-файлы для развертывания откомпилированных CMS в продуктовых средах.
+*   **`/.github`** — Конвейеры автоматизации GitHub Actions для выпуска релизов и развертывания веб-версий на GitHub Pages.
 
-1. Open Android Studio
-2. Select **Open** and choose the directory containing this project
-3. Allow Android Studio to fix any incompatibilities as it imports the project.
-4. Create a file named `.env` in the project directory and set `GEMINI_API_KEY` in that file to your Gemini API key (see `.env.example` for an example)
-5. Remove this line from the app's `build.gradle.kts` file: `signingConfig = signingConfigs.getByName("debugConfig")`
-6. Run the app on an emulator or physical device
+---
+
+## 🌐 Мульти-Языковой и Адаптивный Стилевой Движок
+
+Приложение реализует полноценное real-time переключение локалей и тем оформления без перезагрузки:
+
+1.  **Интернационализация (MultiLang):**
+    *   *Языки по умолчанию:* Русский (как приоритет системы), English, Українська, а также Системная адаптация (определяется локалью Android-устройства).
+    *   *Динамический перевод:* Модуль `Localization.kt` транслирует все элементы UI (от заголовков до ИИ-вариантов ТЗ) в режиме реального времени на основе выбранной настройки.
+2.  **Умное управление Темами (Aesthetic Controls):**
+    *   `Day` (Светлая тема) — высокий контраст, комфортное использование при дневном свете (высокий приоритет макетов).
+    *   `Night` (Темная тема) — глубокий графитовый фон для работы в темноте.
+    *   `Adaptive (System)` — динамическое следование за системными настройками Android OS.
+    *   `Scheduled` (По расписанию) — автоматическое затемнение интерфейса в вечерний период (день с 6:00 до 20:00, ночь с 20:00 до 5:59).
+
+---
+
+## 📈 Самообновляемые Архивы Изменений & Дорожные Карты
+
+В приложении развернута самоподдерживающаяся интерактивная система ведения проектных записей (`AboutScreen.kt`):
+-   **Дорожная карта (Roadmap):** Интерактивные чек-боксы прогресса версий (`v1.0.0` - `v2.0.0`) сохраняются в SharedPreferences, позволяя команде разработчиков мгновенно видеть статус задач.
+-   **Логи версий (Changelog):** Структурированная история изменений и апдейтов ядра всегда доступна в реальном времени.
+
+---
+
+## 🐬 PWA & Docker Контейнеризация
+
+### Интеграция Service Worker (Оффлайн Режим):
+Для обеспечения отказоустойчивости веб-страниц, экспортируемый скрипт использует библиотеку Workbox для кэширования API-запросов и скриптов:
+```javascript
+workbox.routing.registerRoute(
+  new RegExp('/cms-api/'),
+  new workbox.strategies.NetworkFirst({
+    cacheName: 'metacms-db-cache-v1'
+  })
+);
+```
+
+### Запуск контейнера в Docker:
+Для развертывания статического веб-сайта CMS используется Dockerfile на базе легковесного веб-сервера NGINX Alpine:
+```bash
+# Сборка образа CMS
+$ docker build -f docker/Dockerfile -t metacms-site .
+
+# Запуск изолированного веб-конвейера
+$ docker run -d -p 8080:80 metacms-site
+```
+
+---
+
+## 🔧 Google AI Studio: Секреты и Ключи API
+
+Приложение взаимодействует с ИИ-моделями Google Gemini, используя защищенные BuildConfig переменные:
+-   **Ввод ключа:** Инструктируйте пользователей регистрировать ключ `GEMINI_API_KEY` исключительно через **Secrets Panel** среды Google AI Studio.
+-   **Доступ в коде:**
+    ```kotlin
+    val apiKey = BuildConfig.GEMINI_API_KEY
+    ```
+-   **Ограничение:** Не размещайте приватные токены в файле `local.properties` или в открытом коде репозитория.
+
+---
+
+Разработано как мобильный компилятор и дизайнер цифровых экосистем MetaCMS Builder. ⚡

@@ -18,6 +18,33 @@ sealed interface ProjectsUiState {
 
 class CmsViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: CmsRepository
+    private val sharedPrefs = application.getSharedPreferences("metacms_prefs", android.content.Context.MODE_PRIVATE)
+
+    private val _selectedLanguage = MutableStateFlow(sharedPrefs.getString("pref_language", "ru") ?: "ru")
+    val selectedLanguage: StateFlow<String> = _selectedLanguage.asStateFlow()
+
+    private val _selectedThemeMode = MutableStateFlow(sharedPrefs.getString("pref_theme_mode", "System") ?: "System")
+    val selectedThemeMode: StateFlow<String> = _selectedThemeMode.asStateFlow()
+
+    fun setLanguage(lang: String) {
+        _selectedLanguage.value = lang
+        sharedPrefs.edit().putString("pref_language", lang).apply()
+    }
+
+    fun setThemeMode(mode: String) {
+        _selectedThemeMode.value = mode
+        sharedPrefs.edit().putString("pref_theme_mode", mode).apply()
+    }
+
+    fun t(key: String): String {
+        val lang = _selectedLanguage.value
+        val actualLang = if (lang == "System") {
+            com.example.ui.locale.Localization.mapSystemLanguage(java.util.Locale.getDefault())
+        } else {
+            lang
+        }
+        return com.example.ui.locale.Localization.translate(key, actualLang)
+    }
 
     init {
         val db = CmsDatabase.getDatabase(application)
