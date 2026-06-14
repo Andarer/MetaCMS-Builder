@@ -32,8 +32,9 @@ fun AboutScreen(viewModel: CmsViewModel) {
     var item1 by remember { mutableStateOf(true) }
     var item2 by remember { mutableStateOf(true) }
     var item3 by remember { mutableStateOf(true) }
-    var item4 by remember { mutableStateOf(false) }
+    var item4 by remember { mutableStateOf(true) }
     var item5 by remember { mutableStateOf(false) }
+    var item6 by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -212,22 +213,26 @@ fun AboutScreen(viewModel: CmsViewModel) {
 
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Checkbox(checked = item1, onCheckedChange = { item1 = it })
-                                    Text("v1.0.0 Alpha: Создание UI Билдера, Room БД, селф-хостинг", fontSize = 12.sp)
+                                    Text("v1.0.0: Сборка UI Билдера, Room архитектура, селф-хостинг", fontSize = 12.sp)
                                 }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Checkbox(checked = item2, onCheckedChange = { item2 = it })
-                                    Text("v1.1.0: Интеграция Gemini API для автогенерации схем колонок", fontSize = 12.sp)
+                                    Text("v1.1.0: Интеграция Gemini API для автоконфигурации схем СУБД", fontSize = 12.sp)
                                 }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Checkbox(checked = item3, onCheckedChange = { item3 = it })
-                                    Text("v1.2.0: Поддержка Simulated Git console: Commits, Pushes", fontSize = 12.sp)
+                                    Text("v1.2.0: Поддержка консоли Simulated Git: Commits & Pushes", fontSize = 12.sp)
                                 }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Checkbox(checked = item4, onCheckedChange = { item4 = it })
-                                    Text("v1.5.0: Локальная компиляция Flutter Web PWA в Android", fontSize = 12.sp)
+                                    Text("v1.3.0: Живой интерактивный симулятор виртуальной БД (Sandbox Player)", fontSize = 12.sp)
                                 }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Checkbox(checked = item5, onCheckedChange = { item5 = it })
+                                    Text("v1.5.0: Локальная компиляция Flutter Web PWA", fontSize = 12.sp)
+                                }
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Checkbox(checked = item6, onCheckedChange = { item6 = it })
                                     Text("v2.0.0 Global: Облачный экспорт баз данных в Spanner/Cloud SQL", fontSize = 12.sp)
                                 }
                             }
@@ -243,10 +248,15 @@ fun AboutScreen(viewModel: CmsViewModel) {
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
                         ) {
                             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Text("v1.0.0 Patch (2026-06-11)", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.tertiary)
+                                Text("v1.3.0 Release (Текущий)", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.tertiary)
+                                BulletPoint("Интегрирована живая песочница баз данных (Database Simulation Engine).")
+                                BulletPoint("Возможность вводить значения полей и генерировать записи таблиц динамически.")
+                                BulletPoint("Добавлена поддержка интерактивного удаления и модификации мок-записей прямо из Android.")
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text("v1.0.0 Core Build", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 BulletPoint("Интегрировано Room Database для сохранения проектов и модулей.")
                                 BulletPoint("Добавлен живой визуализатор исходного кода Dart для 8 модулей.")
-                                BulletPoint("Подключена модель ИИ Gemini 3.5 Flash с разбором и автоприменением JSON JSON-Schema.")
+                                BulletPoint("Подключена модель ИИ Gemini 3.5 Flash с разбором и автоприменением JSON-Schema.")
                                 BulletPoint("Спроектирован премиальный UI-дизайн Material 3 с Edge-To-Edge отображением.")
                             }
                         }

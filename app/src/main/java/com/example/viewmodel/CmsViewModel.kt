@@ -66,6 +66,48 @@ class CmsViewModel(application: Application) : AndroidViewModel(application) {
     private val _githubTokenSetting = MutableStateFlow("")
     val githubTokenSetting: StateFlow<String> = _githubTokenSetting.asStateFlow()
 
+    // Simulation Engine State for Live DB View & Interactive Testing
+    private val _mockRecords = MutableStateFlow<Map<String, List<Map<String, String>>>>(
+        mapOf(
+            "Blog" to listOf(
+                mapOf("articleTitle" to "Запуск MetaCMS v1.1.0", "bodyContent" to "Первый релиз нашей визуальной CMS-платформы на Flutter & Docker!", "authorId" to "1", "isPublished" to "true"),
+                mapOf("articleTitle" to "Облачный деплой в один клик", "bodyContent" to "Интеграция с GitHub Actions позволяет собирать и деплоить PWA автоматически.", "authorId" to "3", "isPublished" to "true")
+            ),
+            "CRM" to listOf(
+                mapOf("name" to "Александр Смирнов", "email" to "alex@smirnov.io", "dealValue" to "1850.50", "status" to "Won"),
+                mapOf("name" to "Марина Кузнецова", "email" to "marina@design.studio", "dealValue" to "5600.00", "status" to "InContact")
+            ),
+            "Shop" to listOf(
+                mapOf("productName" to "Беспроводной Микрофон Pro-9", "price" to "189.00", "stockCount" to "35", "leadInquiryEnabled" to "true"),
+                mapOf("productName" to "Студийный Свет LED Panel", "price" to "245.50", "stockCount" to "12", "leadInquiryEnabled" to "false")
+            ),
+            "Wiki" to listOf(
+                mapOf("articleTitle" to "Руководство разработчика", "bodyContent" to "Правила написания чистого кода и организации репозиториев.", "authorId" to "10", "isPublished" to "true")
+            )
+        )
+    )
+    val mockRecords: StateFlow<Map<String, List<Map<String, String>>>> = _mockRecords.asStateFlow()
+
+    fun addMockRecord(moduleName: String, record: Map<String, String>) {
+        val current = _mockRecords.value.toMutableMap()
+        val list = (current[moduleName] ?: emptyList()).toMutableList()
+        list.add(0, record)
+        current[moduleName] = list
+        _mockRecords.value = current
+        _gitLogs.value = _gitLogs.value + "[SimEngine] Добавлена живая запись в таблицу '$moduleName': ${record.entries.joinToString { "${it.key}=${it.value}" }}"
+    }
+
+    fun deleteMockRecord(moduleName: String, index: Int) {
+        val current = _mockRecords.value.toMutableMap()
+        val list = (current[moduleName] ?: emptyList()).toMutableList()
+        if (index in list.indices) {
+            val removed = list.removeAt(index)
+            current[moduleName] = list
+            _mockRecords.value = current
+            _gitLogs.value = _gitLogs.value + "[SimEngine] Из таблицы '$moduleName' удалена запись #${index + 1}"
+        }
+    }
+
     init {
         // Automatically select the first project once loaded
         viewModelScope.launch {

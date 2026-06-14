@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.viewmodel.CmsViewModel
@@ -304,6 +305,246 @@ fun ModulesScreen(viewModel: CmsViewModel) {
                             lineHeight = 16.sp,
                             modifier = Modifier.fillMaxWidth()
                         )
+                    }
+                }
+            }
+        }
+
+        // 4. Interactive Database Simulator Card (Visual Sandbox Prototype)
+        item {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.12f)),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.4f)),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                var simModule by remember { mutableStateOf(allModulesList[0]) }
+                val activeRecordsMap by viewModel.mockRecords.collectAsState()
+                val currentRecords = activeRecordsMap[simModule] ?: emptyList()
+                val specFields = viewModel.getSchemaFields()
+                val pendingInputValues = remember { mutableStateMapOf<String, String>() }
+
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.PlayArrow,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.tertiary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Симулятор Живой Базы",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 15.sp,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                                )
+                            }
+                            Text(
+                                text = "Интерактивная песочница для тестирования схемы",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f)
+                            )
+                        }
+
+                        // Module Selection Menu
+                        var expandedSelector by remember { mutableStateOf(false) }
+                        Box {
+                            TextButton(onClick = { expandedSelector = true }) {
+                                Text(
+                                    text = "$simModule ▾",
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = expandedSelector,
+                                onDismissRequest = { expandedSelector = false }
+                            ) {
+                                allModulesList.forEach { mod ->
+                                    DropdownMenuItem(
+                                        text = { Text(mod) },
+                                        onClick = {
+                                            simModule = mod
+                                            expandedSelector = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    if (!activeModules.contains(simModule)) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f))
+                                .padding(12.dp)
+                        ) {
+                            Text(
+                                text = "Модуль '$simModule' отключен. Вы можете активировать его выше в конфигураторе.",
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    } else {
+                        if (specFields.isEmpty()) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                    .padding(12.dp)
+                            ) {
+                                Text(
+                                    text = "Колонки не заданы. Добавьте поля в 'Спецификации Схемы БД' выше или используйте ИИ-архитектора.",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        } else {
+                            Text(
+                                text = "Добавить запись в таблицу `$simModule`:",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            specFields.forEach { field ->
+                                val valState = pendingInputValues[field.name] ?: ""
+                                OutlinedTextField(
+                                    value = valState,
+                                    onValueChange = { pendingInputValues[field.name] = it },
+                                    label = { Text("${field.name} (${field.type})") },
+                                    singleLine = true,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
+                                    textStyle = LocalTextStyle.current.copy(fontSize = 12.sp)
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Button(
+                                onClick = {
+                                    val newRecord = mutableMapOf<String, String>()
+                                    specFields.forEach { f ->
+                                        newRecord[f.name] = pendingInputValues[f.name] ?: ""
+                                    }
+                                    viewModel.addMockRecord(simModule, newRecord)
+                                    pendingInputValues.clear()
+                                    Toast.makeText(context, "Запись сохранена в виртуальной БД $simModule!", Toast.LENGTH_SHORT).show()
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Icon(Icons.Default.Storage, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Создать Тестовую Запись", fontSize = 13.sp)
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            text = "Виртуальная таблица `$simModule` (${currentRecords.size}):",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        if (currentRecords.isEmpty()) {
+                            Text(
+                                text = "Таблица пуста. Заполните поля выше, чтобы сгенерировать запись.",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.6f),
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                        } else {
+                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                currentRecords.forEachIndexed { idx, record ->
+                                    Card(
+                                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)),
+                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+                                        shape = RoundedCornerShape(10.dp)
+                                    ) {
+                                        Column(modifier = Modifier.padding(10.dp)) {
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text(
+                                                    text = "Запись ID #${currentRecords.size - idx}",
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 11.sp,
+                                                    color = MaterialTheme.colorScheme.primary
+                                                )
+                                                IconButton(
+                                                    onClick = { viewModel.deleteMockRecord(simModule, idx) },
+                                                    modifier = Modifier.size(20.dp)
+                                                ) {
+                                                    Icon(
+                                                        Icons.Default.Delete,
+                                                        contentDescription = "Удалить",
+                                                        tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f),
+                                                        modifier = Modifier.size(14.dp)
+                                                    )
+                                                }
+                                            }
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Spacer(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(1.dp)
+                                                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+                                            )
+                                            Spacer(modifier = Modifier.height(6.dp))
+
+                                            record.forEach { (k, v) ->
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .padding(vertical = 2.dp),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(
+                                                        text = k,
+                                                        fontFamily = FontFamily.Monospace,
+                                                        fontSize = 11.sp,
+                                                        fontWeight = FontWeight.SemiBold,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                    )
+                                                    Text(
+                                                        text = v.ifBlank { "—" },
+                                                        fontSize = 11.sp,
+                                                        fontWeight = FontWeight.Normal,
+                                                        color = MaterialTheme.colorScheme.onSurface,
+                                                        textAlign = TextAlign.End
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
